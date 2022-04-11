@@ -31,6 +31,7 @@ namespace NHibernateUpskill.Tests
         [Fact]
         public void ShouldFilterCarByMileage()
         {
+            // mileage can be as KM or MILES - differentiate by UnitOfMeasureId
             const int kilometersLessThan = 250;
 
             //result.Should().HaveCount(1);
@@ -40,6 +41,7 @@ namespace NHibernateUpskill.Tests
         [Fact]
         public void HQL_ShouldFilterCarByMileage()
         {
+            // mileage can be as KM or MILES - differentiate by UnitOfMeasureId
             var kilometersLessThan = 250;
             var query = $@"
 ";

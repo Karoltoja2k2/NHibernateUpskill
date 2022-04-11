@@ -27,8 +27,15 @@ namespace NHibernateUpskill.Tests
         [Fact]
         public void HQL_ShouldFilterCarByType()
         {
-            //result.Should().HaveCount(1);
-            //result[0].PlateNumber.Should().Be(HondaPlate);
+            var query = $@"
+select _car.PlateNumber
+from Car _car
+where _car.Type = {(int)CarTypeKeys.Honda}
+";
+            var result = Session.CreateQuery(query).List<string>();
+
+            result.Should().HaveCount(1);
+            result[0].Should().Be(HondaPlate);
         }
 
         [Fact]
@@ -61,15 +68,13 @@ group by _car.PlateNumber
             result[0].Should().Be(HondaPlate);
         }
 
-
         [Fact]
         public void ShouldFilterCarByJourneyAndSegments()
         {
-            var journeyStartedAfter = new DateTime(2021, 12, 11);
-            var anySegmentLengthGreaterThan = 10_000;
+            var journeyStartedAfter = new DateTime(2021, 12, 13);
+            var anySegmentLengthGreaterThan = 150_000;
 
             var result = Session.QueryOver<Car>()
-                .Where(x => x.Type == (int)CarTypeKeys.Honda)
                 .JoinQueryOver<Journey>(x => x.Journeys)
                 .Where(x => x.StartedAt > journeyStartedAfter)
                 .JoinQueryOver<Segment>(x => x.Segments)
@@ -78,17 +83,27 @@ group by _car.PlateNumber
                 .List<Car>();
 
             result.Should().HaveCount(1);
-            result[0].PlateNumber.Should().Be(HondaPlate);
+            result[0].PlateNumber.Should().Be(BmwPlate);
         }
 
         [Fact]
         public void HQL_ShouldFilterCarByJourneyAndSegments()
         {
-            var journeyStartedAfter = new DateTime(2021, 12, 11);
-            var anySegmentLengthGreaterThan = 10_000;
+            var journeyStartedAfter = "2021-12-13 00:00:00";
+            var anySegmentLengthGreaterThan = 150_000;
+            var query = $@"
+select _car.PlateNumber
+from Car _car
+    inner join _car.Journeys _journey
+    inner join _journey.Segments _segment
+where _journey.StartedAt > '{journeyStartedAfter}'
+and _segment.LengthMeters > {anySegmentLengthGreaterThan}
+group by _car.PlateNumber
+";
 
-            //result.Should().HaveCount(1);
-            //result[0].PlateNumber.Should().Be(HondaPlate);
+            var result = Session.CreateQuery(query).List<string>();
+            result.Should().HaveCount(1);
+            result[0].Should().Be(BmwPlate);
         }
 
         [Fact]
@@ -120,9 +135,19 @@ group by _car.PlateNumber
         {
             var hasFeature = (int)FeatureKeys.SeatBelts;
             var anySegmentLengthGreaterThan = 150_000;
-
-            //result.Should().HaveCount(1);
-            //result[0].PlateNumber.Should().Be(BmwPlate);
+            var query = $@"
+select _car.PlateNumber
+from Car _car
+    inner join _car.Features _feature
+        with _feature.Id = {hasFeature}
+    inner join _car.Journeys _journey
+    inner join _journey.Segments _segment
+        with _segment.LengthMeters > {anySegmentLengthGreaterThan}
+group by _car.PlateNumber
+";
+            var result = Session.CreateQuery(query).List<string>();
+            result.Should().HaveCount(1);
+            result[0].Should().Be(BmwPlate);
         }
 
         [Fact]

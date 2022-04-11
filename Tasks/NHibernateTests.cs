@@ -110,7 +110,7 @@ namespace NHibernateUpskill.Tests
         [Fact]
         public void HQL_ShouldFilterWhereTotalLengthOfSegmentsInRouteExceedsValue()
         {
-            var totalSegmentsLengthInCityIsGreaterThan = 150_000;
+            var totalSegmentsLengthInRouteIsGreaterThan = 150_000;
             var query = $@"
 ";
 

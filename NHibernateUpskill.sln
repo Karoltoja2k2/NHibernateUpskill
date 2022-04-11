@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32106.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernateUpskill", "NHibernateUpskill\NHibernateUpskill.csproj", "{E981C086-3087-4078-809C-2E796BE3F766}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tasks", "Tasks\Tasks.csproj", "{9116D113-E768-41B8-B58B-F3E01539E48E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E981C086-3087-4078-809C-2E796BE3F766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E981C086-3087-4078-809C-2E796BE3F766}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E981C086-3087-4078-809C-2E796BE3F766}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E981C086-3087-4078-809C-2E796BE3F766}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9116D113-E768-41B8-B58B-F3E01539E48E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9116D113-E768-41B8-B58B-F3E01539E48E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9116D113-E768-41B8-B58B-F3E01539E48E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9116D113-E768-41B8-B58B-F3E01539E48E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0247AC84-1EBC-418A-8B0C-6AC5461B41B8}
+	EndGlobalSection
+EndGlobal

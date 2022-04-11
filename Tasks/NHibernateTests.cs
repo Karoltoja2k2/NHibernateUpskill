@@ -116,5 +116,18 @@ namespace NHibernateUpskill.Tests
             result.Should().HaveCount(1);
             result[0].Should().Be(HondaPlate);
         }
+
+        [Fact]
+        public void HQL_ShouldFilterCarByMileage_AndShouldSelectOnlyCarWithoutReferences()
+        {
+            var mileageKilometersLessThan = 250;
+            var query = $@"
+";
+
+            var result = Session.CreateQuery(query).List<Car>();
+            result.Should().HaveCount(1);
+            result[0].PlateNumber.Should().Be(HondaPlate);
+            result[0].Mileage.Should().BeNull();
+        }
     }
 }

@@ -54,21 +54,21 @@ namespace NHibernateUpskill.Tests
         [Fact]
         public void ShouldFilterCarByJourneyAndSegments()
         {
-            var journeyStartedAfter = new DateTime(2021, 12, 11);
-            var anySegmentLengthGreaterThan = 10_000;
+            var journeyStartedAfter = new DateTime(2021, 12, 13);
+            var anySegmentLengthGreaterThan = 150_000;
 
             //result.Should().HaveCount(1);
-            //result[0].PlateNumber.Should().Be(HondaPlate);
+            //result[0].PlateNumber.Should().Be(BmwPlate);
         }
 
         [Fact]
         public void HQL_ShouldFilterCarByJourneyAndSegments()
         {
-            var journeyStartedAfter = new DateTime(2021, 12, 11);
-            var anySegmentLengthGreaterThan = 10_000;
+            var journeyStartedAfter = new DateTime(2021, 12, 13);
+            var anySegmentLengthGreaterThan = 150_000;
 
             //result.Should().HaveCount(1);
-            //result[0].PlateNumber.Should().Be(HondaPlate);
+            //result[0].PlateNumber.Should().Be(BmwPlate);
         }
 
         [Fact]

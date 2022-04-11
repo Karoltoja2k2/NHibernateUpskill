@@ -1,5 +1,6 @@
 using System;
 using FluentAssertions;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using NHibernateUpskill.Domain;
 using Xunit;
@@ -46,21 +47,27 @@ where _car.Type = {(int)CarTypeKeys.Honda}
                 .JoinQueryOver(x => x.Mileage)
                 .Where(x => (x.Value < kilometersLessThan && x.UnitOfMeasureId == (int)UnitOfMeasureKeys.Kilometers) ||
                             (x.Value < kilometersLessThan / KmToMile && x.UnitOfMeasureId == (int)UnitOfMeasureKeys.Miles))
-                .List<Car>();
+                .TransformUsing(Transformers.DistinctRootEntity)
+                .Select(x => x.PlateNumber)
+                .List<string>();
+
 
             result.Should().HaveCount(1);
-            result[0].PlateNumber.Should().Be(HondaPlate);
+            result[0].Should().Be(HondaPlate);
         }
 
         [Fact]
         public void HQL_ShouldFilterCarByMileage()
         {
             var kilometersLessThan = 250;
+            var mileageInMiles = 250 / KmToMile;
+
             var query = $@"
 select _car.PlateNumber
 from Car _car
     inner join _car.Mileage _mileage
-        with _mileage.Value < {kilometersLessThan}
+        with (_mileage.Value < {mileageInMiles.ToString().Replace(',', '.')} and _mileage.UnitOfMeasureId = {(int)UnitOfMeasureKeys.Miles})
+        or (_mileage.Value < {kilometersLessThan} and _mileage.UnitOfMeasureId = {(int)UnitOfMeasureKeys.Kilometers})
 group by _car.PlateNumber
 ";
             var result = Session.CreateQuery(query).List<string>();
@@ -80,10 +87,11 @@ group by _car.PlateNumber
                 .JoinQueryOver<Segment>(x => x.Segments)
                 .Where(x => x.LengthMeters > anySegmentLengthGreaterThan)
                 .TransformUsing(Transformers.DistinctRootEntity)
-                .List<Car>();
+                .Select(x => x.PlateNumber)
+                .List<string>();
 
             result.Should().HaveCount(1);
-            result[0].PlateNumber.Should().Be(BmwPlate);
+            result[0].Should().Be(BmwPlate);
         }
 
         [Fact]
@@ -95,9 +103,9 @@ group by _car.PlateNumber
 select _car.PlateNumber
 from Car _car
     inner join _car.Journeys _journey
+        with _journey.StartedAt > '{journeyStartedAfter}'
     inner join _journey.Segments _segment
-where _journey.StartedAt > '{journeyStartedAfter}'
-and _segment.LengthMeters > {anySegmentLengthGreaterThan}
+        with _segment.LengthMeters > {anySegmentLengthGreaterThan}
 group by _car.PlateNumber
 ";
 
@@ -124,10 +132,11 @@ group by _car.PlateNumber
                 .Where(x => featureAlias.Id == hasFeature)
                 .Where(x => segmentAlias.LengthMeters > anySegmentLengthGreaterThan)
                 .TransformUsing(Transformers.DistinctRootEntity)
-                .List<Car>();
+                .Select(x => x.PlateNumber)
+                .List<string>();
 
             result.Should().HaveCount(1);
-            result[0].PlateNumber.Should().Be(BmwPlate);
+            result[0].Should().Be(BmwPlate);
         }
 
         [Fact]
@@ -169,7 +178,7 @@ having count(Journeys) > 1
         [Fact]
         public void HQL_ShouldFilterWhereTotalLengthOfSegmentsInRouteExceedsValue()
         {
-            var totalSegmentsLengthInCityIsGreaterThan = 150_000;
+            var totalSegmentsLengthInRouteIsGreaterThan = 150_000;
             var query = $@"
 select _car.PlateNumber
 from Car _car
@@ -177,7 +186,7 @@ from Car _car
     left join _journeys.Segments _segments
         with _segments.IsCity = false
 group by _car.PlateNumber
-having sum(_segments.LengthMeters) > {totalSegmentsLengthInCityIsGreaterThan}
+having sum(_segments.LengthMeters) > {totalSegmentsLengthInRouteIsGreaterThan}
 ";
 
             var result = Session.CreateQuery(query).List<string>();
@@ -189,7 +198,15 @@ having sum(_segments.LengthMeters) > {totalSegmentsLengthInCityIsGreaterThan}
         public void HQL_ShouldFilterCarByMileage_AndShouldSelectOnlyCarWithoutReferences()
         {
             var mileageKilometersLessThan = 250;
+            var mileageInMiles = mileageKilometersLessThan / KmToMile;
+
             var query = $@"
+select new Car(_car.Id, _car.PlateNumber, _car.Type, _car.FuelIntakeCity, _car.FuelIntakeRoute)
+from Car _car
+    inner join _car.Mileage _mileage
+        with (_mileage.Value < {mileageInMiles.ToString().Replace(',', '.')} and _mileage.UnitOfMeasureId = {(int)UnitOfMeasureKeys.Miles})
+        or (_mileage.Value < {mileageKilometersLessThan} and _mileage.UnitOfMeasureId = {(int)UnitOfMeasureKeys.Kilometers})
+group by _car.Id, _car.PlateNumber, _car.Type, _car.FuelIntakeCity, _car.FuelIntakeRoute
 ";
 
             var result = Session.CreateQuery(query).List<Car>();

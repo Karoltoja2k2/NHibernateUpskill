@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
@@ -95,6 +96,11 @@ namespace NHibernateUpskill.Tests
                             },
                         }
                     }
+                },
+                Metadata = new Dictionary<string, string>
+                {
+                    { "niCategory", "A" },
+                    { "test", "hehe" }
                 }
             };
 

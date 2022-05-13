@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using NHibernateUpskill.Domain;
@@ -12,6 +14,30 @@ namespace NHibernateUpskill.Tests
         public NHibernateTests()
         {
             SeedDb();
+        }
+
+        [Fact]
+        public void Tttt()
+        {
+            ICriteria criteria = Session.CreateCriteria<Car>("Metadata");
+            //criteria.CreateCriteria("Metadata").Add(Restrictions.Eq("xdd", "A"));
+            //var result = criteria.List<Car>();
+
+            //var result = Session.QueryOver<Car>()
+            //    .Where(x => x.Metadata == new Dictionary<string, string>{{ "niCategory" , "A"} })
+            //    .List<Car>();
+
+            var cat = "A";
+
+            var query = $@"
+select car.PlateNumber, metadata
+from Car as car
+    left join car.Metadata as metadata
+        with metadata = ""A""
+group by car.PlateNumber, metadata
+";
+
+            var result = Session.CreateQuery(query).List<object[]>();
         }
 
         [Fact]
@@ -160,6 +186,44 @@ group by _car.PlateNumber
         }
 
         [Fact]
+        public void ShouldSelectCarsWithMoreThanOneJourney_BidirectionalRelation()
+        {
+            Car carAlias = null;
+            Feature featureAlias = null;
+            Journey journeyAlias = null;
+            Segment segmentAlias = null;
+
+            var result = Session.QueryOver(() => carAlias)
+                .WithSubquery
+                .WhereValue(1)
+                .Lt(QueryOver.Of(() => journeyAlias).Where(x => x.Car.Id == carAlias.Id).ToRowCountQuery())
+                .TransformUsing(Transformers.DistinctRootEntity)
+                .List<object>();
+
+            result.Should().HaveCount(1);
+            result[0].Should().Be(HondaPlate);
+        }
+
+        [Fact]
+        public void ShouldSelectCarsWithMoreThanOneJourney_UnidirectionalRelation()
+        {
+            Car carAlias = null;
+            Feature featureAlias = null;
+            Journey journeyAlias = null;
+            Segment segmentAlias = null;
+
+            var result = Session.QueryOver(() => carAlias)
+                .WithSubquery
+                .WhereValue(1)
+                .Lt(QueryOver.Of(() => journeyAlias).Where(x => x.Car.Id == carAlias.Id).ToRowCountQuery())
+                .TransformUsing(Transformers.DistinctRootEntity)
+                .List<object>();
+
+            result.Should().HaveCount(1);
+            result[0].Should().Be(HondaPlate);
+        }
+
+        [Fact]
         public void HQL_ShouldSelectCarsWithMoreThanOneJourney()
         {
             var query = $@"
@@ -173,6 +237,27 @@ having count(Journeys) > 1
 
             result.Should().HaveCount(1);
             result[0].Should().Be(HondaPlate);
+        }
+
+        [Fact]
+        public void ShouldFilterWhereTotalLengthOfSegmentsInRouteExceedsValue()
+        {
+            var totalSegmentsLengthInRouteIsGreaterThan = 150_000;
+            Car carAlias = null;
+            Feature featureAlias = null;
+            Journey journeyAlias = null;
+            Segment segmentAlias = null;
+
+            var result = Session.QueryOver(() => carAlias)
+                .WithSubquery
+                .WhereValue(totalSegmentsLengthInRouteIsGreaterThan)
+                .Lt(QueryOver.Of(() => segmentAlias).Where(x => x.IsCity).JoinQueryOver<Journey>(x => x.Journey).Where(x => x.Car.Id == carAlias.Id).Select(Projections.Sum(() => segmentAlias.LengthMeters)))
+                .Select(x => x.PlateNumber)
+                .TransformUsing(Transformers.DistinctRootEntity)
+                .List<object>();
+
+            result.Should().HaveCount(1);
+            result[0].Should().Be(BmwPlate);
         }
 
         [Fact]

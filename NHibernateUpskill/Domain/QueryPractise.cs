@@ -61,6 +61,8 @@ namespace NHibernateUpskill.Domain
         public virtual IList<Feature> Features { get; set; }
 
         public virtual IList<Journey> Journeys { get; set; }
+
+        public virtual IDictionary<string, string> Metadata { get; set; }
     }
 
     public class CarMileage
@@ -86,6 +88,8 @@ namespace NHibernateUpskill.Domain
         public virtual DateTime StartedAt { get; set; }
 
         public virtual IList<Segment> Segments { get; set; }
+
+        public virtual Car Car { get; set; }
     }
 
     public class Segment
@@ -95,5 +99,7 @@ namespace NHibernateUpskill.Domain
         public virtual int LengthMeters { get; set; }
 
         public virtual bool IsCity { get; set; }
+
+        public virtual Journey Journey { get; set; }
     }
 }

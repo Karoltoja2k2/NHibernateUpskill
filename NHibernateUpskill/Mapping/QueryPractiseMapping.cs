@@ -16,6 +16,13 @@ namespace NHibernateUpskill.Mapping
             References(x => x.Mileage).Cascade.All().Column("MileageId");
             HasMany(x => x.Journeys).Cascade.All().KeyColumn("CarId");
             HasManyToMany(x => x.Features).Table("CarFeature").ChildKeyColumn("FeatureId").ParentKeyColumn("CarId");
+
+            HasMany(x => x.Metadata)
+                .Table("entity_jsondictionary")
+                .KeyColumn("entityid")
+                .Cascade.All()
+                .AsMap<string>("qwe")
+                .Element("xdd");
         }
     }
 
@@ -35,6 +42,7 @@ namespace NHibernateUpskill.Mapping
         {
             Id(x => x.Id);
             Map(x => x.StartedAt).Not.Nullable();
+            References(x => x.Car).Column("CarId");
             HasMany(x => x.Segments).Cascade.All().KeyColumn("JourneyId");
         }
     }
@@ -46,6 +54,7 @@ namespace NHibernateUpskill.Mapping
             Id(x => x.Id);
             Map(x => x.LengthMeters).Not.Nullable();
             Map(x => x.IsCity).Not.Nullable();
+            References(x => x.Journey).Column("JourneyId");
         }
     }
 
